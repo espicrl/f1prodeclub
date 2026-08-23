@@ -1,100 +1,67 @@
 "use client";
 
-import { PILOT_AVATARS } from "./ProfileModal";
-
-export default function Header({ coins = 250, points = 120, currentTab, onChangeTab, userProfile }) {
-  // Usamos el avatar y offset guardados o los valores por defecto
-  const avatarImage = userProfile.avatarImg || PILOT_AVATARS[0].img;
-  const vOffset = userProfile.avatarOffset !== undefined ? userProfile.avatarOffset : 20;
-
+export default function Header({
+  userProfile,
+  coins = 0,
+  points = 0,
+  onOpenCalendar,
+  onOpenProfile,
+}) {
   return (
-    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-slate-900/90">
-      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+    <header className="bg-black/90 border-b border-red-900/40 sticky top-0 z-50 backdrop-blur-md px-4 py-3">
+      <div className="max-w-5xl mx-auto flex items-center justify-between">
         
-        {/* BRAND / LOGO */}
-        <div 
-          onClick={() => onChangeTab("home")}
-          className="flex items-center gap-2 cursor-pointer group"
-        >
-          <span className="text-2xl group-hover:scale-110 transition-transform">🏎️</span>
-          <div>
-            <h1 className="text-sm font-black text-white tracking-wider uppercase leading-none">
-              F1 <span className="text-red-500">PRODE CLUB</span>
+        {/* LOGO & TITULO */}
+        <div className="flex items-center gap-3">
+          <div className="bg-red-700 text-white font-black text-sm px-2.5 py-1 rounded-lg tracking-tighter shadow-md">
+            F1
+          </div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-black text-sm sm:text-base tracking-wider uppercase text-white">
+              PRODE <span className="text-red-500">CLUB</span>
             </h1>
-            <span className="text-[9px] text-slate-400 font-mono">TEMPORADA 2026</span>
+            <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 px-1.5 py-0.5 rounded uppercase tracking-widest">
+              BETA
+            </span>
           </div>
         </div>
 
-        {/* PUNTOS Y MONEDAS */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-inner">
-            <span className="text-amber-400">🏆</span>
-            <span className="text-white font-mono">{points}</span>
+        {/* CONTROLES / USUARIO */}
+        <div className="flex items-center gap-3">
+          {/* BOTÓN CALENDARIO */}
+          <button
+            onClick={onOpenCalendar}
+            className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-slate-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition"
+          >
+            <span>📅</span>
+            <span className="hidden sm:inline">Calendario</span>
+          </button>
+
+          {/* MONEDAS Y PUNTOS */}
+          <div className="hidden sm:flex items-center gap-2 bg-zinc-950 border border-zinc-800 px-3 py-1.5 rounded-xl text-xs font-mono font-bold">
+            <span className="text-amber-400">🪙 {coins}</span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-red-400">{points} pts</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-slate-950 border border-amber-500/30 px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-inner">
-            <span className="text-amber-400">🪙</span>
-            <span className="text-amber-300 font-mono">{coins}</span>
-          </div>
+          {/* PERFIL */}
+          <button
+            onClick={onOpenProfile}
+            className="flex items-center gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl transition"
+          >
+            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-red-600 bg-zinc-900 shrink-0">
+              <img
+                src={userProfile?.avatarImg || "https://upload.wikimedia.org/wikipedia/commons/1/18/Lewis_Hamilton_2022_March_%28cropped%29.jpg"}
+                alt={userProfile?.name || "Usuario"}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="text-xs font-bold text-slate-200 pr-1 hidden sm:inline">
+              {userProfile?.name || "Piloto"}
+            </span>
+          </button>
         </div>
 
-      </div>
-
-      {/* PESTAÑAS DE NAVEGACIÓN */}
-      <div className="max-w-4xl mx-auto px-4 flex gap-1.5 border-t border-slate-800/60 pt-2 pb-2 overflow-x-auto">
-        <button
-          onClick={() => onChangeTab("home")}
-          className={`flex-1 min-w-[70px] py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
-            currentTab === "home" 
-              ? "bg-red-600 text-white shadow-md shadow-red-950/50" 
-              : "bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800"
-          }`}
-        >
-          <span>🏁</span> Inicio
-        </button>
-
-        <button
-          onClick={() => onChangeTab("leagues")}
-          className={`flex-1 min-w-[70px] py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
-            currentTab === "leagues" 
-              ? "bg-red-600 text-white shadow-md shadow-red-950/50" 
-              : "bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800"
-          }`}
-        >
-          <span>🏆</span> Ligas
-        </button>
-
-        <button
-          onClick={() => onChangeTab("profile")}
-          className={`flex-1 min-w-[70px] py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-            currentTab === "profile" 
-              ? "bg-red-600 text-white shadow-md shadow-red-950/50" 
-              : "bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800"
-          }`}
-        >
-          {/* MINI FOTO DE PERFIL CON ENCUADRE PERSONALIZADO */}
-          <div className="w-4 h-4 rounded-full overflow-hidden border border-slate-400 shadow-inner shrink-0">
-            <img 
-              src={avatarImage} 
-              alt="Perfil" 
-              className="w-full h-full object-cover" 
-              // APLICAMOS EL OFFSET VERTICAL GUARDADO
-              style={{ objectPosition: `50% ${vOffset}%` }}
-            />
-          </div>
-          Perfil
-        </button>
-
-        <button
-          onClick={() => onChangeTab("store")}
-          className={`flex-1 min-w-[70px] py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
-            currentTab === "store" 
-              ? "bg-amber-600 text-white shadow-md shadow-amber-950/50" 
-              : "bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800"
-          }`}
-        >
-          <span>🛍️</span> Tienda
-        </button>
       </div>
     </header>
   );
