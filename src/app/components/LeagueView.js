@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+// CALENDARIO ACTUALIZADO: Abu Dabi cambiado por Ímola + GP de Malasia actualizado
 const CIRCUITS_DATA = [
-  { round: 1, name: "GP de Australia", winner: "Juan Pérez", points: 25 },
-  { round: 2, name: "GP de China", winner: "Carlos F.", points: 30 },
-  { round: 3, name: "GP de Japón", winner: "Lucas M.", points: 22 },
-  { round: 4, name: "GP de Bahréin", winner: "Marcos G.", points: 18 },
-  { round: 5, name: "GP de Arabia Saudita", winner: "Agustín R.", points: 25 },
-  { round: 6, name: "GP de Miami", winner: "Mateo S.", points: 20 },
-  { round: 7, name: "GP de Canadá", winner: "Federico T.", points: 15 },
-  { round: 8, name: "GP de Mónaco", winner: "Diego L.", points: 25 },
+  { round: 1, name: "GP de Australia", winner: "Juan Pérez", points: 25, img: "/circuits/australia.png" },
+  { round: 2, name: "GP de China", winner: "Carlos F.", points: 30, img: "/circuits/china.png" },
+  { round: 3, name: "GP de Japón", winner: "Lucas M.", points: 22, img: "/circuits/japon.png" },
+  { round: 4, name: "GP de Bahréin", winner: "Marcos G.", points: 18, img: "/circuits/bahrein.png" },
+  { round: 5, name: "GP de Arabia Saudita", winner: "Agustín R.", points: 25, img: "/circuits/arabia.png" },
+  { round: 6, name: "GP de Miami", winner: "Mateo S.", points: 20, img: "/circuits/miami.png" },
+  { round: 7, name: "GP de Canadá", winner: "Federico T.", points: 15, img: "/circuits/canada.png" },
+  { round: 8, name: "GP de Mónaco", winner: "Diego L.", points: 25, img: "/circuits/monaco.png" },
+  { round: 9, name: "GP de Malasia (Sepang)", winner: "Max Verstappen", points: 25, img: "/circuits/malasia.png" },
+  { round: 10, name: "GP de Ímola (Italia)", winner: "Pendiente", points: 0, img: "/circuits/imola.png" },
 ];
 
 export default function LeagueView() {
+  const [user, setUser] = useState(null);
   const [leagues, setLeagues] = useState([]);
   const [activeLeagueId, setActiveLeagueId] = useState(null);
   const [newLeagueName, setNewLeagueName] = useState("");
@@ -21,8 +25,26 @@ export default function LeagueView() {
   const [predictions, setPredictions] = useState({});
 
   const isLocked = true;
+
+  // EFECTO: Guardar / Recuperar ID de Usuario en localStorage
+  useEffect(() => {
+    let storedUser = localStorage.getItem("f1_prode_user");
+
+    if (!storedUser) {
+      // Genera un ID único para el usuario si no existe
+      const newUser = {
+        id: "usr_" + crypto.randomUUID().slice(0, 8),
+        name: "Piloto_" + Math.floor(1000 + Math.random() * 9000),
+        isGoogleAuth: false,
+      };
+      localStorage.setItem("f1_prode_user", JSON.stringify(newUser));
+      setUser(newUser);
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const currentLeague = leagues.find((l) => l.id === activeLeagueId);
-  const currentPred = activeLeagueId ? predictions[activeLeagueId] || { p1: "", p2: "", p3: "" } : null;
 
   const handleCreateGroup = (e) => {
     e.preventDefault();
@@ -33,6 +55,7 @@ export default function LeagueView() {
       type: "Privada",
       members: 1,
       code: "GP" + Math.floor(1000 + Math.random() * 9000),
+      ownerId: user?.id,
     };
     setLeagues([...leagues, newGroup]);
     setActiveLeagueId(newGroup.id);
@@ -42,6 +65,19 @@ export default function LeagueView() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* TARJETA DE PERFIL Y USER ID */}
+      {user && (
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex justify-between items-center text-xs text-zinc-400">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Usuario: <strong className="text-white">{user.name}</strong></span>
+          </div>
+          <div className="font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-[11px] text-red-400">
+            ID: {user.id}
+          </div>
+        </div>
+      )}
+
       {/* SECCIÓN 1: TUS LIGAS */}
       <div className="bg-zinc-950 border border-red-900/50 rounded-2xl p-5 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
@@ -115,14 +151,14 @@ export default function LeagueView() {
         )}
       </div>
 
-      {/* SECCIÓN 2: AFICHE F1 PUBLIC */}
+      {/* SECCIÓN 2: AFICHE Y TROFEOS DE CIRCUITOS */}
       <div className="bg-zinc-950 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
           <h2 className="text-base font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
             <span>👑</span> Trofeos de Circuito (Ganadores del Fin de Semana)
           </h2>
           <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono">
-            Prode F1 2026
+            Prode F1
           </span>
         </div>
 
@@ -145,12 +181,12 @@ export default function LeagueView() {
               <div className="flex items-center gap-3 shrink-0 z-10">
                 <span className="text-3xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]">🏆</span>
 
-                {/* VISUALIZADOR DE LA IMAGEN DESDE /public */}
-                <div className="w-16 h-16 rounded-xl border-2 border-amber-400/80 shadow-[0_0_12px_rgba(245,158,11,0.4)] overflow-hidden bg-black shrink-0 relative flex items-center justify-center">
+                {/* IMAGEN DEL CIRCUITO DESDE /public/circuits */}
+                <div className="w-16 h-16 rounded-xl border-2 border-amber-400/80 shadow-[0_0_12px_rgba(245,158,11,0.4)] overflow-hidden bg-black shrink-0 relative flex items-center justify-center p-1">
                   <img
-                    src="/f1-poster.jpeg"
+                    src={race.img}
                     alt={race.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               </div>
@@ -160,7 +196,7 @@ export default function LeagueView() {
       </div>
 
       {/* SECCIÓN 3: PRONÓSTICOS */}
-      {currentLeague && currentPred && (
+      {currentLeague && (
         <div className="bg-zinc-950 border border-red-900/50 rounded-2xl p-5 shadow-xl space-y-4">
           <div className="border-b border-zinc-900 pb-3 flex justify-between items-center flex-wrap gap-2">
             <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
