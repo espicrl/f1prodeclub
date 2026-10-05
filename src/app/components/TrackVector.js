@@ -1,25 +1,30 @@
+// src/app/components/TrackVector.js
 "use client";
 
 import { circuitTracks } from "./circuitTracks";
 
-export default function TrackVector({ trackKey, className = "w-12 h-12 text-red-500" }) {
+export default function TrackVector({ trackKey, className = "", isGold = false }) {
   const track = circuitTracks[trackKey];
 
-  if (!track || !track.path) {
-    return <span className="text-xs text-slate-600">N/A</span>;
-  }
+  if (!track) return null;
+
+  // Cálculo de posición sobre el afiche
+  const posX = (track.col / 3) * 100;
+  const posY = 23.5 + (track.row / 5) * 71.5;
 
   return (
-    <svg
-      viewBox={track.viewBox || "0 0 100 100"}
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d={track.path} />
-    </svg>
+    <div
+      className={`inline-block shrink-0 bg-no-repeat transition-all duration-300 ${className}`}
+      style={{
+        width: "90px",
+        height: "65px",
+        backgroundImage: "url('/f1-2026-poster.jpg')",
+        backgroundSize: "440% 900%",
+        backgroundPosition: `${posX}% ${posY}%`,
+        filter: isGold
+          ? "drop-shadow(0px 0px 8px rgba(234, 179, 8, 0.9)) brightness(1.2)"
+          : "none",
+      }}
+    />
   );
 }

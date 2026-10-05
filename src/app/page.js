@@ -8,12 +8,13 @@ import LeagueView from "./components/LeagueView";
 import StoreView from "./components/StoreView";
 import ProfileView from "./components/ProfileView";
 import CalendarModal from "./components/CalendarModal";
-import WelcomeModal from "./components/WelcomeModal"; // Importado
+import WelcomeModal from "./components/WelcomeModal";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("ligas");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false); // Estado del cartel de bienvenida
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  const [selectedRace, setSelectedRace] = useState(null);
 
   const [userProfile, setUserProfile] = useState({
     name: "Piloto F1",
@@ -21,24 +22,32 @@ export default function Home() {
     bannerImg: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
   });
 
-  const [coins, setCoins] = useState(0);
-  const [points, setPoints] = useState(0);
+  const [coins, setCoins] = useState(150);
+  const [points, setPoints] = useState(1250);
 
   useEffect(() => {
-    // Abrir bienvenida la primera vez que entra
+    // Modal de bienvenida
     const hasSeenWelcome = localStorage.getItem("f1_welcome_seen");
     if (!hasSeenWelcome) {
       setIsWelcomeOpen(true);
     }
 
-    const saved = localStorage.getItem("f1_user_profile");
-    if (saved) {
+    // Cargar perfil guardado
+    const savedProfile = localStorage.getItem("f1_user_profile");
+    if (savedProfile) {
       try {
-        setUserProfile(JSON.parse(saved));
+        setUserProfile(JSON.parse(savedProfile));
       } catch (e) {
         console.error("Error al cargar perfil local", e);
       }
     }
+
+    // Cargar puntos y monedas guardados
+    const savedCoins = localStorage.getItem("f1_user_coins");
+    if (savedCoins !== null) setCoins(Number(savedCoins));
+
+    const savedPoints = localStorage.getItem("f1_user_points");
+    if (savedPoints !== null) setPoints(Number(savedPoints));
   }, []);
 
   const handleCloseWelcome = () => {
@@ -49,6 +58,12 @@ export default function Home() {
   const handleSaveProfile = (newProfile) => {
     setUserProfile(newProfile);
     localStorage.setItem("f1_user_profile", JSON.stringify(newProfile));
+  };
+
+  const handleSetCoins = (newCoins) => {
+    const updated = typeof newCoins === "function" ? newCoins(coins) : newCoins;
+    setCoins(updated);
+    localStorage.setItem("f1_user_coins", updated.toString());
   };
 
   return (
@@ -71,6 +86,7 @@ export default function Home() {
       <CalendarModal
         isOpen={isCalendarOpen}
         onClose={() => setIsCalendarOpen(false)}
+        onSelectRace={(race) => setSelectedRace(race)}
       />
 
       {/* HEADER SUPERIOR */}
@@ -128,10 +144,10 @@ export default function Home() {
             
             <div className="relative z-10 flex flex-col items-center text-center space-y-4">
               <span className="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest bg-red-950/80 px-3 py-1 rounded-full border border-red-800/50">
-                🏎️ Próximo Gran Premio • Temporada 2026
+                🏎️ {selectedRace ? selectedRace.name : "Próximo Gran Premio"} • Temporada 2026
               </span>
               
-              <CountdownTimer />
+              <CountdownTimer selectedRace={selectedRace} />
             </div>
           </section>
         )}
@@ -139,7 +155,7 @@ export default function Home() {
         {/* VISTAS MODULARES ACTIVAS */}
         <div className="pt-2">
           {activeTab === "ligas" && <LeagueView />}
-          {activeTab === "tienda" && <StoreView coins={coins} setCoins={setCoins} />}
+          {activeTab === "tienda" && <StoreView coins={coins} setCoins={handleSetCoins} />}
           {activeTab === "perfil" && (
             <ProfileView
               userProfile={userProfile}

@@ -2,17 +2,25 @@
 
 import { useState } from "react";
 
+const CIRCUITS_DATA = [
+  { round: 1, name: "GP de Australia", winner: "Juan Pérez", points: 25 },
+  { round: 2, name: "GP de China", winner: "Carlos F.", points: 30 },
+  { round: 3, name: "GP de Japón", winner: "Lucas M.", points: 22 },
+  { round: 4, name: "GP de Bahréin", winner: "Marcos G.", points: 18 },
+  { round: 5, name: "GP de Arabia Saudita", winner: "Agustín R.", points: 25 },
+  { round: 6, name: "GP de Miami", winner: "Mateo S.", points: 20 },
+  { round: 7, name: "GP de Canadá", winner: "Federico T.", points: 15 },
+  { round: 8, name: "GP de Mónaco", winner: "Diego L.", points: 25 },
+];
+
 export default function LeagueView() {
   const [leagues, setLeagues] = useState([]);
   const [activeLeagueId, setActiveLeagueId] = useState(null);
   const [newLeagueName, setNewLeagueName] = useState("");
   const [showCreateGroup, setShowCreateGroup] = useState(false);
-  
   const [predictions, setPredictions] = useState({});
 
-  // PREDICCIONES BLOQUEADAS (El tiempo límite ya expiró)
   const isLocked = true;
-
   const currentLeague = leagues.find((l) => l.id === activeLeagueId);
   const currentPred = activeLeagueId ? predictions[activeLeagueId] || { p1: "", p2: "", p3: "" } : null;
 
@@ -26,27 +34,15 @@ export default function LeagueView() {
       members: 1,
       code: "GP" + Math.floor(1000 + Math.random() * 9000),
     };
-    const updated = [...leagues, newGroup];
-    setLeagues(updated);
+    setLeagues([...leagues, newGroup]);
     setActiveLeagueId(newGroup.id);
     setNewLeagueName("");
     setShowCreateGroup(false);
   };
 
-  const updateCurrentPred = (key, value) => {
-    if (isLocked || !activeLeagueId) return;
-    setPredictions({
-      ...predictions,
-      [activeLeagueId]: {
-        ...currentPred,
-        [key]: value,
-      },
-    });
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* SELECCIÓN Y CREACIÓN DE LIGAS */}
+      {/* SECCIÓN 1: TUS LIGAS */}
       <div className="bg-zinc-950 border border-red-900/50 rounded-2xl p-5 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
@@ -85,7 +81,7 @@ export default function LeagueView() {
           <div className="text-center py-8 bg-black/50 rounded-xl border border-zinc-800/80 p-4 space-y-2">
             <p className="text-slate-400 text-xs font-mono">Aún no formás parte de ninguna liga.</p>
             <p className="text-[11px] text-zinc-500">
-              Hacé clic en <strong className="text-red-400">+ Crear Liga</strong> para invitar a tus amigos y empezar a competir.
+              Hacé clic en <strong className="text-red-400">+ Crear Liga</strong> para invitar a tus amigos.
             </p>
           </div>
         ) : (
@@ -119,102 +115,83 @@ export default function LeagueView() {
         )}
       </div>
 
-      {/* SECCIÓN DE PRONÓSTICO (SÓLO SI HAY LIGA ACTIVA) */}
+      {/* SECCIÓN 2: AFICHE F1 PUBLIC */}
+      <div className="bg-zinc-950 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+          <h2 className="text-base font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+            <span>👑</span> Trofeos de Circuito (Ganadores del Fin de Semana)
+          </h2>
+          <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono">
+            Prode F1 2026
+          </span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {CIRCUITS_DATA.map((race) => (
+            <div
+              key={race.round}
+              className="relative bg-gradient-to-r from-amber-950/30 via-zinc-950 to-black border border-amber-500/50 rounded-xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.1)] overflow-hidden"
+            >
+              <div className="space-y-1 z-10">
+                <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black px-1.5 py-0.5 rounded uppercase">
+                  Fecha {race.round} • Ganador Prode
+                </span>
+                <h3 className="text-sm font-bold text-amber-100">{race.name}</h3>
+                <p className="text-xs text-zinc-300 font-medium">
+                  🥇 {race.winner} <span className="text-amber-400 font-bold">({race.points} pts)</span>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0 z-10">
+                <span className="text-3xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]">🏆</span>
+
+                {/* VISUALIZADOR DE LA IMAGEN DESDE /public */}
+                <div className="w-16 h-16 rounded-xl border-2 border-amber-400/80 shadow-[0_0_12px_rgba(245,158,11,0.4)] overflow-hidden bg-black shrink-0 relative flex items-center justify-center">
+                  <img
+                    src="/f1-poster.jpeg"
+                    alt={race.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* SECCIÓN 3: PRONÓSTICOS */}
       {currentLeague && currentPred && (
         <div className="bg-zinc-950 border border-red-900/50 rounded-2xl p-5 shadow-xl space-y-4">
           <div className="border-b border-zinc-900 pb-3 flex justify-between items-center flex-wrap gap-2">
-            <div>
-              <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
-                <span>📝</span> Pronóstico para: <span className="text-red-500">{currentLeague.name}</span>
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Predicciones para la sesión activa.
-              </p>
-            </div>
-
-            {/* BADGE DE ESTADO BLOQUEADO */}
+            <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <span>📝</span> Pronóstico para: <span className="text-red-500">{currentLeague.name}</span>
+            </h2>
             {isLocked && (
-              <span className="text-xs bg-amber-950/80 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-amber-800/80 flex items-center gap-1.5 shadow-md">
+              <span className="text-xs bg-amber-950/80 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-amber-800/80">
                 🔒 Pronósticos Bloqueados
               </span>
             )}
           </div>
 
-          {/* BANNER AVISO TIEMPO EXPIRADO */}
-          {isLocked && (
-            <div className="bg-amber-950/30 border border-amber-800/40 p-3 rounded-xl text-center">
-              <p className="text-xs text-amber-300 font-mono">
-                ⏱️ El tiempo límite para enviar tus predicciones ha terminado. Las opciones están cerradas.
-              </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
+              <span className="text-xs font-bold text-amber-400 block uppercase">🥇 1° Puesto</span>
+              <select disabled className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white cursor-not-allowed">
+                <option value="">Cerrado</option>
+              </select>
             </div>
-          )}
-
-          <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
-                <span className="text-xs font-bold text-amber-400 block uppercase">🥇 1° Puesto</span>
-                <select
-                  disabled={isLocked}
-                  value={currentPred.p1}
-                  onChange={(e) => updateCurrentPred("p1", e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none cursor-not-allowed"
-                >
-                  <option value="">Cerrado</option>
-                  <option value="NOR">Lando Norris (McLaren)</option>
-                  <option value="RUS">George Russell (Mercedes)</option>
-                  <option value="ANT">Kimi Antonelli (Mercedes)</option>
-                  <option value="PIA">Oscar Piastri (McLaren)</option>
-                  <option value="HAM">Lewis Hamilton (Ferrari)</option>
-                  <option value="VER">Max Verstappen (Red Bull)</option>
-                  <option value="COL">Franco Colapinto (Alpine)</option>
-                </select>
-              </div>
-
-              <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
-                <span className="text-xs font-bold text-slate-300 block uppercase">🥈 2° Puesto</span>
-                <select
-                  disabled={isLocked}
-                  value={currentPred.p2}
-                  onChange={(e) => updateCurrentPred("p2", e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none cursor-not-allowed"
-                >
-                  <option value="">Cerrado</option>
-                  <option value="NOR">Lando Norris (McLaren)</option>
-                  <option value="RUS">George Russell (Mercedes)</option>
-                  <option value="ANT">Kimi Antonelli (Mercedes)</option>
-                  <option value="PIA">Oscar Piastri (McLaren)</option>
-                  <option value="HAM">Lewis Hamilton (Ferrari)</option>
-                  <option value="VER">Max Verstappen (Red Bull)</option>
-                  <option value="COL">Franco Colapinto (Alpine)</option>
-                </select>
-              </div>
-
-              <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
-                <span className="text-xs font-bold text-amber-700 block uppercase">🥉 3° Puesto</span>
-                <select
-                  disabled={isLocked}
-                  value={currentPred.p3}
-                  onChange={(e) => updateCurrentPred("p3", e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none cursor-not-allowed"
-                >
-                  <option value="">Cerrado</option>
-                  <option value="NOR">Lando Norris (McLaren)</option>
-                  <option value="RUS">George Russell (Mercedes)</option>
-                  <option value="ANT">Kimi Antonelli (Mercedes)</option>
-                  <option value="PIA">Oscar Piastri (McLaren)</option>
-                  <option value="HAM">Lewis Hamilton (Ferrari)</option>
-                  <option value="VER">Max Verstappen (Red Bull)</option>
-                  <option value="COL">Franco Colapinto (Alpine)</option>
-                </select>
-              </div>
+            <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
+              <span className="text-xs font-bold text-slate-300 block uppercase">🥈 2° Puesto</span>
+              <select disabled className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white cursor-not-allowed">
+                <option value="">Cerrado</option>
+              </select>
             </div>
-
-            <button
-              disabled={isLocked}
-              className="w-full bg-zinc-800 text-zinc-500 font-black text-xs uppercase py-3 rounded-xl cursor-not-allowed border border-zinc-700/50"
-            >
-              🔒 Predicciones Cerradas
-            </button>
+            <div className="bg-black p-4 rounded-xl border border-zinc-800 space-y-2 opacity-60">
+              <span className="text-xs font-bold text-amber-700 block uppercase">🥉 3° Puesto</span>
+              <select disabled className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white cursor-not-allowed">
+                <option value="">Cerrado</option>
+              </select>
+            </div>
           </div>
         </div>
       )}
