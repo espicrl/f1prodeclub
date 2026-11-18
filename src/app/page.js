@@ -1,177 +1,95 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-import Header from "./components/Header";
+import { useState } from "react";
 import CountdownTimer from "./components/CountdownTimer";
-import LeagueView from "./components/LeagueView";
-import StoreView from "./components/StoreView";
-import ProfileView from "./components/ProfileView";
 import CalendarModal from "./components/CalendarModal";
-import WelcomeModal from "./components/WelcomeModal";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("ligas");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
-  const [selectedRace, setSelectedRace] = useState(null);
-
-  const [userProfile, setUserProfile] = useState({
-    name: "Piloto F1",
-    avatarImg: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-    bannerImg: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
-  });
-
-  const [coins, setCoins] = useState(150);
-  const [points, setPoints] = useState(1250);
-
-  useEffect(() => {
-    // Modal de bienvenida
-    const hasSeenWelcome = localStorage.getItem("f1_welcome_seen");
-    if (!hasSeenWelcome) {
-      setIsWelcomeOpen(true);
-    }
-
-    // Cargar perfil guardado
-    const savedProfile = localStorage.getItem("f1_user_profile");
-    if (savedProfile) {
-      try {
-        setUserProfile(JSON.parse(savedProfile));
-      } catch (e) {
-        console.error("Error al cargar perfil local", e);
-      }
-    }
-
-    // Cargar puntos y monedas guardados
-    const savedCoins = localStorage.getItem("f1_user_coins");
-    if (savedCoins !== null) setCoins(Number(savedCoins));
-
-    const savedPoints = localStorage.getItem("f1_user_points");
-    if (savedPoints !== null) setPoints(Number(savedPoints));
-  }, []);
-
-  const handleCloseWelcome = () => {
-    setIsWelcomeOpen(false);
-    localStorage.setItem("f1_welcome_seen", "true");
-  };
-
-  const handleSaveProfile = (newProfile) => {
-    setUserProfile(newProfile);
-    localStorage.setItem("f1_user_profile", JSON.stringify(newProfile));
-  };
-
-  const handleSetCoins = (newCoins) => {
-    const updated = typeof newCoins === "function" ? newCoins(coins) : newCoins;
-    setCoins(updated);
-    localStorage.setItem("f1_user_coins", updated.toString());
-  };
+  const [selectedSession, setSelectedSession] = useState(null);
 
   return (
-    <main className="min-h-screen bg-black text-slate-100 flex flex-col font-sans selection:bg-red-600 selection:text-white relative">
+    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-between p-4 md:p-8 selection:bg-red-900 selection:text-white">
       
-      {/* ETIQUETA DE VERSIÓN */}
-      <div className="fixed bottom-3 right-3 z-50 pointer-events-none">
-        <span className="text-[10px] font-mono font-bold bg-zinc-900/90 text-zinc-400 border border-zinc-800 px-2.5 py-1 rounded-lg backdrop-blur-md shadow-lg">
-          v0.1
-        </span>
+      {/* 🛑 CARTEL DE RECONSTRUCCIÓN HASTA FEBRERO 2027 */}
+      <div className="w-full max-w-2xl mx-auto mt-2 bg-gradient-to-r from-red-950 via-zinc-900 to-red-950 border border-red-800/60 rounded-2xl p-5 text-center shadow-2xl shadow-red-950/50 backdrop-blur-md">
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <span className="text-xl animate-pulse">🚧</span>
+          <h1 className="text-sm md:text-base font-black uppercase tracking-wider text-red-400">
+            Página en Reconstrucción • Regresamos en Febrero 2027
+          </h1>
+        </div>
+        <p className="text-xs text-zinc-300 leading-relaxed max-w-xl mx-auto">
+          Estamos preparando la <span className="text-white font-bold">Actualización 1.0</span> con minijuegos, temas de escuderías y muchas novedades. Por el momento solo se encuentran habilitados los horarios, el contador y el calendario.
+        </p>
       </div>
 
-      {/* MODAL DE BIENVENIDA */}
-      <WelcomeModal
-        isOpen={isWelcomeOpen}
-        onClose={handleCloseWelcome}
-      />
+      {/* CONTENIDO CENTRAL: CAMPEONES 2026 + CONTADOR + CALENDARIO */}
+      <div className="w-full max-w-xl my-8 space-y-6">
+        
+        {/* 🏆 TARJETA DE CAMPEONES TEMPORADA 2026 */}
+        <div className="bg-zinc-950 border border-red-900/50 rounded-2xl p-5 shadow-xl">
+          <h2 className="text-[11px] font-black uppercase tracking-widest text-amber-500 text-center mb-4 flex items-center justify-center gap-2">
+            <span>🏆</span> Campeones Mundiales F1 2026 <span>🏆</span>
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Campeonato de Pilotos */}
+            <div className="bg-gradient-to-b from-zinc-900 to-black border border-zinc-800 rounded-xl p-3.5 text-center">
+              <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                Campeón de Pilotos
+              </span>
+              <span className="text-base font-black text-white mt-1 block">
+                Andrea Kimi Antonelli
+              </span>
+              <span className="text-[10px] text-emerald-400 font-bold uppercase mt-0.5 block">
+                Mercedes-AMG F1
+              </span>
+            </div>
+
+            {/* Campeonato de Constructores */}
+            <div className="bg-gradient-to-b from-zinc-900 to-black border border-zinc-800 rounded-xl p-3.5 text-center">
+              <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                Campeón de Constructores
+              </span>
+              <span className="text-base font-black text-white mt-1 block">
+                Mercedes
+              </span>
+              <span className="text-[10px] text-emerald-400 font-bold uppercase mt-0.5 block">
+                Mercedes-AMG Petronas
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ⏱️ CONTADOR DE PRÓXIMA CARRERA */}
+        <CountdownTimer selectedSession={selectedSession} />
+
+        {/* 📅 BOTÓN PARA ABRIR EL CALENDARIO */}
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => setIsCalendarOpen(true)}
+            className="w-full sm:w-auto bg-red-900 hover:bg-red-800 text-white border border-red-600/50 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-lg shadow-red-950/50 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>📅</span> Ver Calendario, Horarios y Resultados
+          </button>
+        </div>
+
+      </div>
 
       {/* MODAL DE CALENDARIO */}
       <CalendarModal
         isOpen={isCalendarOpen}
         onClose={() => setIsCalendarOpen(false)}
-        onSelectRace={(race) => setSelectedRace(race)}
+        onSelectRace={(session) => setSelectedSession(session)}
       />
 
-      {/* HEADER SUPERIOR */}
-      <Header
-        userProfile={userProfile}
-        coins={coins}
-        points={points}
-        onOpenCalendar={() => setIsCalendarOpen(true)}
-        onOpenProfile={() => setActiveTab("perfil")}
-      />
-
-      {/* CONTENIDO PRINCIPAL */}
-      <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6">
-        
-        {/* NAVEGACIÓN PRINCIPAL */}
-        <nav className="flex items-center justify-center gap-2 bg-zinc-950/90 p-2 rounded-2xl border border-red-900/40 shadow-xl backdrop-blur-md sticky top-4 z-40">
-          <button
-            onClick={() => setActiveTab("ligas")}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition ${
-              activeTab === "ligas"
-                ? "bg-red-700 text-white shadow-lg shadow-red-950 border border-red-500"
-                : "bg-black/50 text-slate-400 hover:text-white hover:bg-zinc-900 border border-transparent"
-            }`}
-          >
-            <span>🏆</span> Ligas y Pronósticos
-          </button>
-
-          <button
-            onClick={() => setActiveTab("tienda")}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition ${
-              activeTab === "tienda"
-                ? "bg-red-700 text-white shadow-lg shadow-red-950 border border-red-500"
-                : "bg-black/50 text-slate-400 hover:text-white hover:bg-zinc-900 border border-transparent"
-            }`}
-          >
-            <span>🛍️</span> Tienda
-          </button>
-
-          <button
-            onClick={() => setActiveTab("perfil")}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition ${
-              activeTab === "perfil"
-                ? "bg-red-700 text-white shadow-lg shadow-red-950 border border-red-500"
-                : "bg-black/50 text-slate-400 hover:text-white hover:bg-zinc-900 border border-transparent"
-            }`}
-          >
-            <span>👤</span> Perfil
-          </button>
-        </nav>
-
-        {/* HERO / CUENTA REGRESIVA */}
-        {activeTab === "ligas" && (
-          <section className="bg-gradient-to-br from-red-950 via-black to-zinc-950 border border-red-900/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden animate-fade-in">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col items-center text-center space-y-4">
-              <span className="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest bg-red-950/80 px-3 py-1 rounded-full border border-red-800/50">
-                🏎️ {selectedRace ? selectedRace.name : "Próximo Gran Premio"} • Temporada 2026
-              </span>
-              
-              <CountdownTimer selectedRace={selectedRace} />
-            </div>
-          </section>
-        )}
-
-        {/* VISTAS MODULARES ACTIVAS */}
-        <div className="pt-2">
-          {activeTab === "ligas" && <LeagueView />}
-          {activeTab === "tienda" && <StoreView coins={coins} setCoins={handleSetCoins} />}
-          {activeTab === "perfil" && (
-            <ProfileView
-              userProfile={userProfile}
-              onSaveProfile={handleSaveProfile}
-              points={points}
-              coins={coins}
-            />
-          )}
-        </div>
-
-      </div>
-
-      {/* FOOTER */}
-      <footer className="border-t border-zinc-900 bg-black py-6 text-center text-xs text-slate-600 mt-auto">
-        <p className="font-mono">F1 Prode Club © 2026 • Plataforma de Pronósticos Oficiales</p>
+      {/* PIE DE PÁGINA */}
+      <footer className="text-center text-[10px] text-zinc-600 uppercase tracking-widest font-mono">
+        F1 Prode Club • Versión 1.0 en Desarrollo (Febrero 2027)
       </footer>
+
     </main>
   );
 }
